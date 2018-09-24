@@ -45,11 +45,11 @@
     <v-spacer></v-spacer>
     <div>&copy; {{ new Date().getFullYear() }}</div>
   </v-footer>
-  
   </v-app>
   
 </template>
 <script>
+
 export default {
   data () {
     return {
@@ -59,7 +59,8 @@ export default {
           { icon: 'person', title: 'Profile', link: '/profile' },
           { icon: 'face', title: 'Sign up', link: '/signup' },
           { icon: 'lock_open', title: 'Sign in', link: '/signin' }
-        ]
+        ],
+      
     }
   },
 }

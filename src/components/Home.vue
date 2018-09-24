@@ -12,12 +12,15 @@
                         </v-carousel>
                     </v-flex>
                 </v-layout>
+                
     <v-layout row wrap>
-    <v-card light width="450" class="mt-2">
+    <v-card light width="450" class="ml-3">
                 <v-card-title primary>
-                    <router-link to="/" tag="span" style="cursor: pointer"><h4 class="display-3">
+                    <app-clock></app-clock>
+                    <router-link to="/" tag="span" style="cursor: pointer"><h4 class="display-3 mt-4">
                     <!-- <v-icon color="success" size="100">check</v-icon> -->
                     <img src="http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c549.png" alt="" width="100"> East-Cafe`</h4></router-link>
+                     {{watchTime}}
                     </v-card-title>
                     <v-divider light></v-divider>
         <v-list>
@@ -38,7 +41,9 @@
                 <v-card light class="ml-1"
                 v-for="(terminal,id) in terminals" :key="id"
                 >
-                <v-card-text>Terminal: {{id}} Time:{{watchTime}}</v-card-text>
+                 <v-toolbar dark flat color="#6D4C41">
+                    <v-toolbar-title>Terminal: {{id}}</v-toolbar-title>
+                </v-toolbar>
                 <v-card-title primary><h4 class="display-3">
                     <v-icon color="success" size="64">av_timer</v-icon>
                     Serving <small>{{terminal.serving}}</small></h4>
@@ -148,11 +153,11 @@
     </v-form>
     </v-dialog>
   </div>
-
-
     </v-app>
 </template>
 <script>
+    var moment = require('moment')
+    
   export default {
     computed:{
         terminals(){
@@ -161,47 +166,46 @@
         formIsValid () {
             return this.email !== '' && this.password !== ''
         },
-        updateTime () {
-            return this.watchTime = new Date(year, month, day, hours, minutes, seconds, milliseconds)
-        }
     },
-    data: () => ({
-      itemsPic: [
-          {imageUrl:'https://www.liverpool-one.com/wp-content/uploads/2016/10/coffee-shops.jpg', id:'xtbzq1', title:'Coffee-Station1'},
-           {imageUrl:'https://southendmencap.org.uk/wp-content/uploads/2018/04/Coffee-Shop-9.jpg', id:'xtbzq2', title:'Coffee-Station2'},
-           {imageUrl:'https://cdn-images-1.medium.com/max/2000/1*phcY46KcO-gQnZpu005udg.jpeg', id:'xtbzq3', title:'Coffee-Station3'},
-        ],
-      snackbar : false,
-      text:'Your are now in line!',
-      timeout: 3000,
-      dialog: false,
-      
-      valid: false,
-      password: '',
-      email: '',
-      emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+/.test(v) || 'E-mail must be valid'
-      ],
-      menuItems: [
-          { icon: 'sentiment_satisfied_alt', title: 'Terminals', link: '/terminals' },
-          { icon: 'person', title: 'Profile', link: '/profile' },
-          { icon: 'face', title: 'Sign up', link: '/signup' },
-          { icon: 'lock_open', title: 'Sign in', link: '/signin' }
-        ],
-        watchTime:'',
-      createQue:{
-                value: false,
-                customerID: '',
-                name: '',
-                dateTime: '',
-                priorNumber: '',
-                status: '',
-                rating: 0,
-                terminalOccupied:null  
-      }
-
-    }),
+    data()  {
+        return{
+            moment:moment,
+            itemsPic: [
+                {imageUrl:'https://www.liverpool-one.com/wp-content/uploads/2016/10/coffee-shops.jpg', id:'xtbzq1', title:'Coffee-Station1'},
+                {imageUrl:'https://southendmencap.org.uk/wp-content/uploads/2018/04/Coffee-Shop-9.jpg', id:'xtbzq2', title:'Coffee-Station2'},
+                {imageUrl:'https://cdn-images-1.medium.com/max/2000/1*phcY46KcO-gQnZpu005udg.jpeg', id:'xtbzq3', title:'Coffee-Station3'},
+                ],
+            snackbar : false,
+            text:'Your are now in line!',
+            timeout: 3000,
+            dialog: false,
+            
+            valid: false,
+            password: '',
+            email: '',
+            emailRules: [
+                v => !!v || 'E-mail is required',
+                v => /.+@.+/.test(v) || 'E-mail must be valid'
+            ],
+            menuItems: [
+                { icon: 'sentiment_satisfied_alt', title: 'Terminals', link: '/terminals' },
+                { icon: 'person', title: 'Profile', link: '/profile' },
+                { icon: 'face', title: 'Sign up', link: '/signup' },
+                { icon: 'lock_open', title: 'Sign in', link: '/signin' }
+                ],
+                watchTime:'',
+            createQue:{
+                        value: false,
+                        customerID: '',
+                        name: '',
+                        dateTime: '',
+                        priorNumber: '',
+                        status: '',
+                        rating: 0,
+                        terminalOccupied:null  
+            },
+                }
+    },
     methods:{
         getQueue:function(){
             
@@ -212,7 +216,7 @@
                 const queData = {
                     customerID: this.createQue.customerID,
                     name: this.createQue.name,
-                    dateTime: new Date(year, month, day, hours, minutes, seconds, milliseconds),
+                    dateTime: this.createQue.dateTime,
                     priorNumber: this.createQue.priorNumber,
                     status: this.createQue.status,
                     rating: this.createQue.rating,
@@ -221,8 +225,15 @@
             this.$store.dispatch('createQueSubmit', queData)
             this.dialog = false
             this.snackbar = true
+        },
+        updateTime () {
+        this.watchTime = moment().format('L')
         }
-    }
+    },
+    mounted (){
+        this.updateTime()
+    },
+
   }
 </script>
 
