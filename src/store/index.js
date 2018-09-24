@@ -8,7 +8,7 @@ export const store = new Vuex.Store({
         loadedterminals:[
                 {idCode:'035a', serving:'19', queued:'25'},
                 {idCode:'035b', serving:'49', queued:'5'},
-                {idCode:'035c', serving:'19', queued:'55'}
+                {idCode:'035c', serving:'29', queued:'55'}
         ],
         loaderUser:{
             id:'xzbtxyyz23',
@@ -50,8 +50,26 @@ export const store = new Vuex.Store({
         ]
         
     },
-    mutations:{},
-    actions:{},
+    mutations:{
+        createQueSubmit (state, payload){
+            state.loadedLogs.push(payload)
+        }
+    },
+    actions:{
+        createQueSubmit ({commit}, payload){
+            const logs ={
+                customerID: payload.customerID,
+                name: payload.name,
+                dateTime: payload.dateTime,
+                priorNumber: payload.priorNumber,
+                status: payload.status,
+                rating: payload.rating,
+                terminalOccupied: payload.terminalOccupied
+            }
+            //Reach out to firebase an store it!!!
+            commit('createQueSubmit', logs)
+        }
+    },
     getters:{
         loadedterminals (state){
             return state.loadedterminals.sort((terminalA, terminalB) => {

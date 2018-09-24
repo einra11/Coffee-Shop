@@ -1,32 +1,27 @@
 <template>
     <v-app>
     <v-container fluid grid-list-md>
-        <v-layout column wrap>
-            <v-flex sx12>
-                <v-carousel>
-                    <v-carousel-item
-                    v-for="(item) in itemsPic"
-                    :key="item.id"
-                    :src="item.imageUrl"
-                    ></v-carousel-item>
-                </v-carousel>
-            </v-flex>
-        </v-layout>
-    <v-parallax
-    src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
-    height="800"
-    >
-    
+        <v-layout column wrap class="ml-2">
+                    <v-flex sx12>
+                        <v-carousel>
+                            <v-carousel-item
+                            v-for="(item) in itemsPic"
+                            :key="item.id"
+                            :src="item.imageUrl"
+                            ></v-carousel-item>
+                        </v-carousel>
+                    </v-flex>
+                </v-layout>
     <v-layout row wrap>
-    <v-card light width="400">
+    <v-card light width="450" class="mt-2">
                 <v-card-title primary>
                     <router-link to="/" tag="span" style="cursor: pointer"><h4 class="display-3">
                     <!-- <v-icon color="success" size="100">check</v-icon> -->
                     <img src="http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c549.png" alt="" width="100"> East-Cafe`</h4></router-link>
                     </v-card-title>
                     <v-divider light></v-divider>
-                   <v-list>
-                       <v-list-tile
+        <v-list>
+        <v-list-tile
           v-for="item in menuItems"
           :key="item.title"
           :to="item.link">
@@ -35,7 +30,7 @@
           </v-list-tile-action>
           <v-list-tile-content>{{ item.title }}</v-list-tile-content>
         </v-list-tile>
-                   </v-list>
+             </v-list>
                 </v-card>
                 <!-- terminals -->
             <v-layout column wrap class="hidden-sm-and-down">
@@ -43,7 +38,7 @@
                 <v-card light class="ml-1"
                 v-for="(terminal,id) in terminals" :key="id"
                 >
-                <v-card-text>Terminal: {{id}}</v-card-text>
+                <v-card-text>Terminal: {{id}} Time:{{watchTime}}</v-card-text>
                 <v-card-title primary><h4 class="display-3">
                     <v-icon color="success" size="64">av_timer</v-icon>
                     Serving <small>{{terminal.serving}}</small></h4>
@@ -87,7 +82,7 @@
            
         </v-layout>
     </v-layout>
-    </v-parallax>
+    
     </v-container>
         <v-snackbar
       v-model="snackbar"
@@ -111,13 +106,13 @@
       v-model="dialog"
       width="500"
     >
-    <v-form v-model="valid">
+    <v-form v-model="valid" @submit.prevent="confirmQueue">
       <v-card>
         <v-card-title
           class="headline grey lighten-2"
           primary-title
         >
-          Sign-in
+          Get Authorization
           <v-spacer></v-spacer>
         </v-card-title>
 
@@ -143,8 +138,8 @@
                 <v-spacer></v-spacer>
                 <v-btn
                     color="primary"
-                    @click="confirmQueue()"
                     :disabled="!formIsValid"
+                    type="submit"
                 >
                     Get in line
                 </v-btn>
@@ -165,6 +160,9 @@
         },
         formIsValid () {
             return this.email !== '' && this.password !== ''
+        },
+        updateTime () {
+            return this.watchTime = new Date(year, month, day, hours, minutes, seconds, milliseconds)
         }
     },
     data: () => ({
@@ -191,9 +189,16 @@
           { icon: 'face', title: 'Sign up', link: '/signup' },
           { icon: 'lock_open', title: 'Sign in', link: '/signin' }
         ],
+        watchTime:'',
       createQue:{
-          userID:'',
-
+                value: false,
+                customerID: '',
+                name: '',
+                dateTime: '',
+                priorNumber: '',
+                status: '',
+                rating: 0,
+                terminalOccupied:null  
       }
 
     }),
@@ -204,6 +209,16 @@
             //  this.$router.push('/signup')
         },
         confirmQueue:function(){
+                const queData = {
+                    customerID: this.createQue.customerID,
+                    name: this.createQue.name,
+                    dateTime: new Date(year, month, day, hours, minutes, seconds, milliseconds),
+                    priorNumber: this.createQue.priorNumber,
+                    status: this.createQue.status,
+                    rating: this.createQue.rating,
+                    terminalOccupied:this.createQue.terminalOccupied 
+                }
+            this.$store.dispatch('createQueSubmit', queData)
             this.dialog = false
             this.snackbar = true
         }
