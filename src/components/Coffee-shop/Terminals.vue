@@ -9,21 +9,37 @@
             <v-card
             dark
             v-for="(terminal,id) in terminals" :key="id"
-             color="cyan darken-2" class="ma-4">
+             color="#EF6C00" class="ma-4">
               <v-layout>
                 <v-flex xs5>
-                  <v-card-media
+                  <v-img
                     src="https://southendmencap.org.uk/wp-content/uploads/2018/04/Coffee-Shop-9.jpg"
                     height="500px"
                     contain
-                  ></v-card-media>
+                  ></v-img>
                 </v-flex>
                 <v-flex xs7>
                   <v-card-title primary-title>
                     <div>
-                      <div class="headline">Terminal {{id}}</div>
-                      <div>{{terminal.idCode}}</div>
+                      <div class="headline">Terminal {{id}} <v-divider light></v-divider></div>
+                      <div>CODE: {{terminal.idCode}}</div>
                       <div>
+                          <v-data-table
+                            :headers="headers"
+                            :items="logs"
+                            :loading="true"
+                          >
+                            <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+                            <template v-if="props.item.terminalOccupied == id" slot="items" slot-scope="props">
+                              <td>{{ props.item.customerID }}</td>
+                              <td class="text-xs-right">{{ props.item.name }}</td>
+                              <td class="text-xs-right">{{ props.item.dateTime}}</td>
+                              <td class="text-xs-right">{{ props.item.priorNumber}}</td>
+                              <td class="text-xs-right">{{ props.item.status}}</td>
+                              <td class="text-xs-right">{{ props.item.rating  }}</td>
+                            </template>
+                          </v-data-table>
+
                       </div>
                     </div>
                   </v-card-title>
@@ -46,13 +62,29 @@
 
 <script>
 export default {
+  computed:{
+        terminals(){
+            return this.$store.getters.loadedterminals
+        },
+        logs(){
+          return this.$store.getters.loadedLogs
+        }
+    },
   data () {
     return {
-      terminals:[
-          {idCode:'035a', serving:'69', queued:'25'},
-          {idCode:'035b', serving:'49', queued:'5'},
-          {idCode:'035c', serving:'19', queued:'55'}
-      ]
+      headers: [
+          {
+            text: 'Customers ID',
+            align: 'left',
+            sortable: false,
+            value: 'customerID'
+          },
+          { text: 'Name', value: 'name' },
+          { text: 'Date/Time', value: 'dateTime' },
+          { text: 'Priority Number', value: 'priorNumber' },
+          { text: 'Status', value: 'status' },
+          { text: 'Rating', value: 'rating' }
+        ],
     }
   },
 }

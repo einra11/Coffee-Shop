@@ -22,8 +22,9 @@
         @click.stop="sideNav = !sideNav"
         class="hidden-sm-and-up ">
       </v-toolbar-side-icon>
+      <img src="http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c549.png" alt="" width="35">
       <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer">East-Coffee</router-link>
+        <router-link to="/" tag="span" style="cursor: pointer"><h4 class="display-2">East-Coffee</h4></router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
@@ -44,6 +45,7 @@
     <v-spacer></v-spacer>
     <div>&copy; {{ new Date().getFullYear() }}</div>
   </v-footer>
+  
   </v-app>
   
 </template>
