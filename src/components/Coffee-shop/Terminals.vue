@@ -27,16 +27,17 @@
                           <v-data-table
                             :headers="headers"
                             :items="logs"
-                            :loading="true"
+                            :loading="loading"
+                            light
                           >
                             <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                             <template v-if="props.item.terminalOccupied == id" slot="items" slot-scope="props">
                               <td>{{ props.item.customerID }}</td>
                               <td class="text-xs-right">{{ props.item.name }}</td>
                               <td class="text-xs-right">{{ props.item.dateTime}}</td>
-                              <td class="text-xs-right">{{ props.item.priorNumber}}</td>
+                              <!-- <td class="text-xs-right">{{ props.item.priorNumber}}</td> -->
                               <td class="text-xs-right">{{ props.item.status}}</td>
-                              <td class="text-xs-right">{{ props.item.rating  }}</td>
+                              <!-- <td class="text-xs-right">{{ props.item.rating  }}</td> -->
                             </template>
                           </v-data-table>
 
@@ -68,7 +69,10 @@ export default {
         },
         logs(){
           return this.$store.getters.loadedLogs
-        }
+        },
+        loading(){
+          return this.$store.getters.loading
+      }
     },
   data () {
     return {
@@ -81,9 +85,9 @@ export default {
           },
           { text: 'Name', value: 'name' },
           { text: 'Date/Time', value: 'dateTime' },
-          { text: 'Priority Number', value: 'priorNumber' },
+          // { text: 'Priority Number', value: 'priorNumber' },
           { text: 'Status', value: 'status' },
-          { text: 'Rating', value: 'rating' }
+          // { text: 'Rating', value: 'rating' }
         ],
     }
   },

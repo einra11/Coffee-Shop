@@ -54,14 +54,25 @@ export default {
   data () {
     return {
       sideNav: false,
-        menuItems: [
-          { icon: 'sentiment_satisfied_alt', title: 'Terminals', link: '/terminals' },
-          { icon: 'person', title: 'Profile', link: '/profile' },
-          { icon: 'face', title: 'Sign up', link: '/signup' },
-          { icon: 'lock_open', title: 'Sign in', link: '/signin' }
-        ],
-      
     }
   },
+  computed: {
+    menuItems () {
+      let menuItems = [
+          { icon: 'face', title: 'Sign up', link: '/signup' },
+          { icon: 'lock_open', title: 'Sign in', link: '/signin' }
+        ]
+        if (this.userIsAuthentcicated){
+          menuItems =[
+          { icon: 'sentiment_satisfied_alt', title: 'Terminals', link: '/terminals' },
+          { icon: 'person', title: 'Profile', link: '/profile' },
+          ]
+        }
+        return menuItems
+    },
+    userIsAuthentcicated () {
+        return this.$store.getters.user !== null && this.$store.getters.user !== undefined
+    }
+  }
 }
 </script>

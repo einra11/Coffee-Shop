@@ -1,12 +1,16 @@
 import Vue from 'vue'
 import App from './App'
+import * as firebase from 'firebase'
 import router from './router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import  {store} from './store'
 
+import AlertCmp from './components/Shared/Alert'
 import Clock from './components/Clock'
 
+
+Vue.component('app-alert', AlertCmp)
 Vue.component('app-clock', Clock)
 
 Vue.use(Vuetify, { theme: {
@@ -26,5 +30,15 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
+  created () {
+      firebase.initializeApp({
+      apiKey: 'AIzaSyDtAUzOIREOOx44l5i3w9ttc6LdXWiCpDY',
+      authDomain: 'coffee-shop-a7b0b.firebaseapp.com',
+      databaseURL: 'https://coffee-shop-a7b0b.firebaseio.com',
+      projectId: 'coffee-shop-a7b0b',
+      storageBucket: '',
+    })
+    this.$store.dispatch('loadLog')
+  }
 })

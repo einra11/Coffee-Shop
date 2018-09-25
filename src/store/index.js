@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import * as firebase from 'firebase'
+
 
 Vue.use(Vuex)
 
@@ -10,64 +12,129 @@ export const store = new Vuex.Store({
                 {idCode:'035b', serving:'49', queued:'5'},
                 {idCode:'035c', serving:'29', queued:'55'}
         ],
-        loaderUser:{
-            id:'xzbtxyyz23',
-            userLevel:1,  //terminal
-            email:'kennethclone55@gmail.com',
-            password:'ero',
-        },
+        user:null,
+        loading: false,
+        error: null,
         loadedLogs:[
-            {
-                value: false,
-                customerID: '112425',
-                name: 'dummy',
-                dateTime: '9-24-2018',
-                priorNumber: 1,
-                status: 'Serving',
-                rating: 4.0,
-                terminalOccupied:0
-              },
-              {
-                value: false,
-                customerID: '112425',
-                name: 'Law',
-                dateTime: '9-24-2018',
-                priorNumber: 7,
-                status: 'Serving',
-                rating: 4.0,
-                terminalOccupied:1
-              },
-              {
-                value: false,
-                customerID: '112425',
-                name: 'Luffy',
-                dateTime: '9-24-2018',
-                priorNumber: 67,
-                status: 'Serving',
-                rating: 4.0,
-                terminalOccupied:2
-              }
+
         ]
         
     },
     mutations:{
+        setLoadedLogs (state, payload){
+            state.loadedLogs = payload
+        },
         createQueSubmit (state, payload){
             state.loadedLogs.push(payload)
+        },
+        setUser (state, payload){
+            state.user = payload
+        },
+        setLoading (state, payload) {
+            state.loading = payload
+        },
+        setError (state, payload){
+            state.error = payload
+        },
+        clearError (state, payload) {
+            state.error = null
         }
     },
     actions:{
+        loadLog ({commit}){
+            commit('setLoading', true)
+            firebase.database().ref('logs').once('value')
+            .then((data) => {
+                const logs = []
+                const obj = data.val()
+                for (let key in obj){
+                    logs.push({
+                        customerID:key,
+                        dateTime:obj[key].dateTime,
+                        // priorNumber:obj[key].priorNumber,
+                        status:obj[key].status,
+                        terminalOccupied:obj[key].terminalOccupied
+                     })
+                }
+                commit('setLoadedLogs', logs)
+                commit('setLoading', false)
+            })
+            .catch(
+                (error) => {
+                    console.log(error)
+                    commit('setLoading', false)
+                }
+            )
+        },
         createQueSubmit ({commit}, payload){
             const logs ={
-                customerID: payload.customerID,
-                name: payload.name,
-                dateTime: payload.dateTime,
-                priorNumber: payload.priorNumber,
+                // name: payload.name,
+                dateTime: payload.dateTime.toISOString(),
+                // priorNumber: payload.priorNumber,
                 status: payload.status,
-                rating: payload.rating,
+                // rating: payload.rating,
                 terminalOccupied: payload.terminalOccupied
             }
+            firebase.database().ref('logs').push(logs)
+                .then((data) =>{
+                    const key = data.key
+                    commit('createQueSubmit', {
+                        ...logs,
+                        id: key
+                    })
+                    console.log(key)
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
             //Reach out to firebase an store it!!!
-            commit('createQueSubmit', logs)
+        },
+        signUserUp ({commit}, payload){
+            commit('setLoading', true)
+            commit('clearError')
+            firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
+            .then(
+                user => {
+                    commit('setLoading', false)
+                    const newUser = {
+                        id: user.uid,
+                        userLevel: ''
+                    }
+                    commit('setUser', newUser)
+                }
+            )
+            .catch(
+                error => {
+                    commit('setLoading', false)
+                    commit('setError', error)
+                    console.log(error)
+                }
+            )
+        },
+        signUserIn ({commit}, payload) {
+            commit('setLoading', true)
+            commit('clearError')
+            firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+                .then (
+                    user => {
+                        commit('setLoading', false)
+                        const newUser = {
+                            id: user.uid,
+                            userLevel: ''
+                        }
+                        commit('setUser', newUser)
+                    }
+                )
+                .catch (
+                    error => {
+                        commit('setLoading', false)
+                        commit('setError', error)
+                        console.log(error)
+                    }
+                )
+        },
+        clearError ({commit}) {
+            commit('clearError')
         }
     },
     getters:{
@@ -80,6 +147,15 @@ export const store = new Vuex.Store({
             return state.loadedLogs.sort((logA, logB) => {
                 return logA.dateTime > logB.dateTime
             })
+        },
+        user (state) {
+            return state.user
+        },
+        loading (state) {
+            return state.loading
+        },
+        error (state) {
+            return state.error
         }
     }
 })

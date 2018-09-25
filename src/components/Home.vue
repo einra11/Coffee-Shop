@@ -16,7 +16,7 @@
     <v-layout row wrap>
     <v-card light width="450" class="ml-3">
                 <v-card-title primary>
-                    <app-clock></app-clock>
+                    
                     <router-link to="/" tag="span" style="cursor: pointer"><h4 class="display-3 mt-4">
                     <!-- <v-icon color="success" size="100">check</v-icon> -->
                     <img src="http://www.stickpng.com/assets/images/580b57fcd9996e24bc43c549.png" alt="" width="100"> East-Cafe`</h4></router-link>
@@ -54,7 +54,7 @@
                     class="mx-0"
                     color="primary"
                     large
-                    @click.prevent="getQueue()"
+                    @click.prevent="getQueue(id)"
                 >
                     Queue here!
                 </v-btn>
@@ -77,7 +77,7 @@
                     class="mx-0"
                     color="primary"
                     small
-                    @click.prevent="getQueue()"
+                    @click.prevent="getQueue(id)"
                 >
                     Queue here!
                 </v-btn>
@@ -133,6 +133,7 @@
                 v-model="password"
                 label="Password"
                 required
+                type="password"
                 ></v-text-field>
 
                 </v-card-text>
@@ -202,32 +203,34 @@
                         priorNumber: '',
                         status: '',
                         rating: 0,
-                        terminalOccupied:null  
+                        terminalOccupied:''  
             },
                 }
     },
     methods:{
-        getQueue:function(){
+        getQueue:function(id){
             
             this.dialog = true
+            this.createQue.terminalOccupied = id
+            console.log(this.terminalOccupied)
             //  this.$router.push('/signup')
         },
         confirmQueue:function(){
                 const queData = {
-                    customerID: this.createQue.customerID,
-                    name: this.createQue.name,
-                    dateTime: this.createQue.dateTime,
-                    priorNumber: this.createQue.priorNumber,
+                    // customerID: this.createQue.customerID,
+                    // name: this.createQue.name,
+                    // priorNumber: this.createQue.priorNumber,
                     status: this.createQue.status,
-                    rating: this.createQue.rating,
-                    terminalOccupied:this.createQue.terminalOccupied 
+                    // rating: this.createQue.rating,
+                    terminalOccupied:this.createQue.terminalOccupied ,
+                    dateTime: new Date()
                 }
             this.$store.dispatch('createQueSubmit', queData)
             this.dialog = false
             this.snackbar = true
         },
         updateTime () {
-        this.watchTime = moment().format('L')
+        this.watchTime = moment().format('llll')
         }
     },
     mounted (){
