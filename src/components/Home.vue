@@ -95,7 +95,7 @@
       right="right"
       :timeout="timeout"
     >
-      {{ text }}
+     Your Priority {{ createQue.name }}
       <v-btn
         color="pink"
         flat
@@ -153,6 +153,29 @@
       </v-card>
     </v-form>
     </v-dialog>
+    <v-data-table
+    :headers="headers"
+    :items="logs"
+    hide-actions
+    class="elevation-1"
+  >
+    <template slot="items" slot-scope="props">
+        <td class="text-xs-left">{{ props.item.customerID }}</td>
+        <td class="text-xs-left">{{ props.item.name }}</td>
+        <td class="text-xs-left">{{ props.item.dateTime}}</td>
+        <td class="text-xs-left">{{ props.item.terminalOccupied}}</td>
+        <td v-if="props.item.status == 'Waiting'" class="text-xs-left">{{ props.item.status}}<v-progress-circular
+                indeterminate
+                color="green"
+                ></v-progress-circular></td>
+        <td v-else-if="props.item.status == 'Serving'" class="text-xs-left">{{props.item.status}}<v-progress-circular
+                indeterminate
+                color="red"
+                ></v-progress-circular></td>  
+          <td v-else-if="props.item.status == 'Done'" class="text-xs-left"> <v-icon>
+check_circle_outline</v-icon> {{props.item.status}}</td>              
+    </template>
+  </v-data-table>
   </div>
     </v-app>
 </template>
@@ -167,9 +190,24 @@
         formIsValid () {
             return this.email !== '' && this.password !== ''
         },
+         logs(){
+          return this.$store.getters.loadedLogs
+        }
     },
     data()  {
         return{
+             headers: [
+          {
+            text: 'Customers ID',
+            align: 'left',
+            sortable: false,
+            value: 'customerID'
+          },
+          { text: 'Priority Code', value: 'name' },
+          { text: 'Date/Time', value: 'dateTime' },
+          { text: 'Terminal', value: 'terminalOccupied' },
+          { text: 'Status', value: 'status' },
+        ],
             moment:moment,
             itemsPic: [
                 {imageUrl:'https://www.liverpool-one.com/wp-content/uploads/2016/10/coffee-shops.jpg', id:'xtbzq1', title:'Coffee-Station1'},
@@ -177,7 +215,6 @@
                 {imageUrl:'https://cdn-images-1.medium.com/max/2000/1*phcY46KcO-gQnZpu005udg.jpeg', id:'xtbzq3', title:'Coffee-Station3'},
                 ],
             snackbar : false,
-            text:'Your are now in line!',
             timeout: 3000,
             dialog: false,
             
@@ -201,7 +238,7 @@
                         name: '',
                         dateTime: '',
                         priorNumber: '',
-                        status: '',
+                        status: 'Waiting',
                         rating: 0,
                         terminalOccupied:''  
             },
@@ -216,14 +253,12 @@
             //  this.$router.push('/signup')
         },
         confirmQueue:function(){
+                this.makeid()
                 const queData = {
-                    // customerID: this.createQue.customerID,
-                    // name: this.createQue.name,
-                    // priorNumber: this.createQue.priorNumber,
                     status: this.createQue.status,
-                    // rating: this.createQue.rating,
                     terminalOccupied:this.createQue.terminalOccupied ,
-                    dateTime: new Date()
+                    dateTime: new Date(),
+                    name:this.createQue.name
                 }
             this.$store.dispatch('createQueSubmit', queData)
             this.dialog = false
@@ -231,7 +266,12 @@
         },
         updateTime () {
         this.watchTime = moment().format('llll')
-        }
+        },
+        makeid() {
+
+                for (var i = 0; i < 5; i++)
+                    this.createQue.name = Math.random().toString(36).replace('0.', '')
+    }
     },
     mounted (){
         this.updateTime()
@@ -241,5 +281,7 @@
 </script>
 
 <style>
+.v-progress-circular{margin: 1rem}
+    
 </style>
 

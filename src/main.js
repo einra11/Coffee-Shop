@@ -25,6 +25,8 @@ Vue.use(Vuetify, { theme: {
 
 Vue.config.productionTip = false
 
+
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -32,13 +34,7 @@ new Vue({
   store,
   render: h => h(App),
   created () {
-      firebase.initializeApp({
-      apiKey: 'AIzaSyDtAUzOIREOOx44l5i3w9ttc6LdXWiCpDY',
-      authDomain: 'coffee-shop-a7b0b.firebaseapp.com',
-      databaseURL: 'https://coffee-shop-a7b0b.firebaseio.com',
-      projectId: 'coffee-shop-a7b0b',
-      storageBucket: '',
-    })
+    
     this.$store.dispatch('loadLog')
   }
 })

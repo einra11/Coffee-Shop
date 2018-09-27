@@ -5,6 +5,14 @@ import * as firebase from 'firebase'
 
 Vue.use(Vuex)
 
+firebase.initializeApp({
+    apiKey: 'AIzaSyDtAUzOIREOOx44l5i3w9ttc6LdXWiCpDY',
+    authDomain: 'coffee-shop-a7b0b.firebaseapp.com',
+    databaseURL: 'https://coffee-shop-a7b0b.firebaseio.com',
+    projectId: 'coffee-shop-a7b0b',
+    storageBucket: '',
+  })
+
 export const store = new Vuex.Store({
     state:{
         loadedterminals:[
@@ -38,41 +46,50 @@ export const store = new Vuex.Store({
         },
         clearError (state, payload) {
             state.error = null
+        },
+        setMakeServe (state, payload){
+            const logs = state.loadedLogs.find(logs =>{
+                return logs.id === payload.id
+            })
+            if (payload.status){
+                logs.state = payload.state
+            }
+        },
+        setDoneServe (state, payload){
+            const logs = state.loadedLogs.find(logs =>{
+                return logs.id === payload.id
+            })
+            if (payload.status){
+                logs.dateTime = payload.dateTime
+            }
+            if (payload.status){
+                logs.state = payload.state
+            }
         }
     },
     actions:{
         loadLog ({commit}){
             commit('setLoading', true)
-            firebase.database().ref('logs').once('value')
-            .then((data) => {
+            firebase.database().ref('logs').on('value', snapshot =>{
                 const logs = []
-                const obj = data.val()
+                const obj = snapshot.val()
                 for (let key in obj){
                     logs.push({
                         customerID:key,
                         dateTime:obj[key].dateTime,
-                        // priorNumber:obj[key].priorNumber,
+                        name:obj[key].name,
                         status:obj[key].status,
                         terminalOccupied:obj[key].terminalOccupied
                      })
-                }
-                commit('setLoadedLogs', logs)
-                commit('setLoading', false)
-            })
-            .catch(
-                (error) => {
-                    console.log(error)
+                    }
+                    commit('setLoadedLogs', logs)})
                     commit('setLoading', false)
-                }
-            )
         },
         createQueSubmit ({commit}, payload){
             const logs ={
-                // name: payload.name,
+                name: payload.name,
                 dateTime: payload.dateTime.toISOString(),
-                // priorNumber: payload.priorNumber,
                 status: payload.status,
-                // rating: payload.rating,
                 terminalOccupied: payload.terminalOccupied
             }
             firebase.database().ref('logs').push(logs)
@@ -135,6 +152,44 @@ export const store = new Vuex.Store({
         },
         clearError ({commit}) {
             commit('clearError')
+        },
+        // jobDone({commit},payload){
+        //     firebase.database().ref('logs').child(payload['.key']).remove()
+        // }
+        makeServe ({commit},payload){
+            commit('setLoading', true)
+            const updateObject = {}
+            if (payload.status){
+                updateObject.status= payload.status
+            }
+            firebase.database().ref('logs').child(payload.id).update(updateObject)
+            .then(() =>{
+                commit('setLoading', false)
+                commit('setMakeServe', payload)
+            })
+            .catch(error =>{
+                console.log(error)
+                commit('setLoading', false)
+            })
+        },
+        doneServe ({commit},payload){
+            commit('setLoading', true)
+            const updateObject = {}
+            if (payload.dateTime){
+                updateObject.dateTime = payload.dateTime
+            }
+            if (payload.status){
+                updateObject.status= payload.status
+            }
+            firebase.database().ref('logs').child(payload.id).update(updateObject)
+            .then(() =>{
+                commit('setLoading', false)
+                commit('setDoneServe', payload)
+            })
+            .catch(error =>{
+                console.log(error)
+                commit('setLoading', false)
+            })
         }
     },
     getters:{

@@ -31,13 +31,13 @@
                             light
                           >
                             <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-                            <template v-if="props.item.terminalOccupied == id" slot="items" slot-scope="props">
+                            <template v-if="props.item.terminalOccupied === id" slot="items" slot-scope="props">
                               <td>{{ props.item.customerID }}</td>
-                              <td class="text-xs-right">{{ props.item.name }}</td>
-                              <td class="text-xs-right">{{ props.item.dateTime}}</td>
-                              <!-- <td class="text-xs-right">{{ props.item.priorNumber}}</td> -->
-                              <td class="text-xs-right">{{ props.item.status}}</td>
-                              <!-- <td class="text-xs-right">{{ props.item.rating  }}</td> -->
+                              <td class="text-xs-left">{{ props.item.dateTime}}</td>
+                              <td class="text-xs-left">{{ props.item.status}}</td>
+                              <td class="text-xs-left">
+                                <v-btn class="info" :disabled="props.item.status == 'Serving' || props.item.status == 'Done'" @click="serveCust(props.item.customerID)"><v-icon>room_service</v-icon>Serve</v-btn>
+                               <v-btn class="warning" :disabled="props.item.status == 'Done'" @click="jobDone(props.item.customerID, props.item.dateTime)"><v-icon>check_circle_outline</v-icon>Done</v-btn></td>
                             </template>
                           </v-data-table>
 
@@ -48,7 +48,7 @@
               </v-layout>
               <v-divider light></v-divider>
               <v-card-actions>
-                <v-btn flat dark>Listen now</v-btn>
+                <v-btn flat dark @click="test1()">Listen now</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -56,7 +56,6 @@
         </v-layout>
       </v-container>
     </v-card>
-
     </v-app>
 
 </template>
@@ -72,10 +71,14 @@ export default {
         },
         loading(){
           return this.$store.getters.loading
+      },
+      myfilter(){
+        return new RegExp('/DONE/g').test(this.logs.dateTime)
       }
     },
   data () {
     return {
+      myRE: new RegExp('DONE'),
       headers: [
           {
             text: 'Customers ID',
@@ -83,13 +86,25 @@ export default {
             sortable: false,
             value: 'customerID'
           },
-          { text: 'Name', value: 'name' },
           { text: 'Date/Time', value: 'dateTime' },
-          // { text: 'Priority Number', value: 'priorNumber' },
           { text: 'Status', value: 'status' },
-          // { text: 'Rating', value: 'rating' }
         ],
     }
   },
+  methods:{
+   serveCust(cusID){
+      this.$store.dispatch('makeServe', {
+        id: cusID,
+        status:'Serving'
+      })
+    },
+    jobDone(cusID, dateT){
+      this.$store.dispatch('doneServe', {
+        id: cusID,
+        status:'Done',
+        dateTime: 'DONE' + dateT,
+      })
+    }
+  }
 }
 </script>
